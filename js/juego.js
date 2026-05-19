@@ -1,12 +1,5 @@
-/* El objeto Juego sera el encargado del control de todo el resto de los Objetos
-existentes.
-Le dara ordenes al Dibujante para que dibuje entidades en la pantalla. Cargara
-el mapa, chequeara colisiones entre los objetos y actualizara sus movimientos
-y ataques. Gran parte de su implementacion esta hecha, pero hay espacios con el
-texto COMPLETAR que deben completarse segun lo indique la consigna.
-
-El objeto Juego contiene mucho codigo. Tomate tu tiempo para leerlo tranquilo
-y entender que es lo que hace en cada una de sus partes. */
+/* Controla el estado general del juego: mapa, colisiones, enemigos, ataques y
+renderizado de cada fotograma. */
 
 var Juego = {
   // Aca se configura el tamanio del canvas del juego
@@ -18,16 +11,12 @@ var Juego = {
   ganador: false,
 
   obstaculosCarretera: [
-    /*Aca se van a agregar los obstaculos visibles. Tenemos una valla horizontal
-    de ejemplo, pero podras agregar muchos mas. */
     new Obstaculo('imagenes/valla_horizontal.png', 70, 430, 30, 30, 1),
     new Obstaculo('imagenes/valla_horizontal.png', 100, 430, 30, 30, 1),
     new Obstaculo('imagenes/valla_horizontal.png', 130, 430, 30, 30, 1),
     new Obstaculo('imagenes/valla_vertical.png', 190, 460, 30, 30, 1)
   ],
-  /* Estos son los bordes con los que se puede chocar, por ejemplo, la vereda.
-   Ya estan ubicados en sus lugares correspondientes. Ya aparecen en el mapa, ya
-   que son invisibles. No tenes que preocuparte por ellos.*/
+  // Bordes invisibles de la ciudad: veredas, limites del mapa y zonas cerradas.
   bordes: [
     // // Bordes
     new Obstaculo('', 0, 5, 961, 18, 0),
@@ -48,16 +37,13 @@ var Juego = {
   enemigos: [
     new ZombieCaminante('imagenes/zombie1.png', 100, 100, 10, 10, 2, 
     {desdeX: 0, hastaX: 961, desdeY: 0, hastaY: 577}),
-    new ZombieConductor('imagenes/tren_horizontal.png', 400, 322, 90, 30, 2, 
+    new ZombieConductor('imagenes/tren_horizontal.png', 400, 322, 90, 30, 2,
     {desdeX: 0, hastaX: 961, desdeY: 0, hastaY: 577}, 'h')
   ]
 
 }
 
-/* Se cargan los recursos de las imagenes, para tener un facil acceso
-a ellos. No hace falta comprender esta parte. Pero si queres agregar tus propies
-imagenes tendras que poner su ruta en la lista para que pueda ser precargada como
-todas las demas. */
+// Precarga de imagenes para evitar cortes durante la partida.
 Juego.iniciarRecursos = function() {
   Resources.load([
     'imagenes/mapa.png',
@@ -113,6 +99,10 @@ Juego.update = function() {
 // Captura las teclas y si coincide con alguna de las flechas tiene que
 // hacer que el jugador principal se mueva
 Juego.capturarMovimiento = function(tecla) {
+  if (!tecla || this.terminoJuego() || this.ganoJuego()) {
+    return;
+  }
+
   var movX = 0;
   var movY = 0;
   var velocidad = this.jugador.velocidad;
@@ -196,6 +186,10 @@ Juego.dibujar = function() {
 un recorrido por los enemigos para dibujarlos en pantalla ahora habra que hacer
 una funcionalidad similar pero para que se muevan.*/
 Juego.moverEnemigos = function() {
+  if (this.terminoJuego() || this.ganoJuego()) {
+    return;
+  }
+
   this.enemigos.forEach(enemigo => {
     enemigo.mover();
   })
@@ -206,14 +200,14 @@ Si colisiona empieza el ataque el zombie, si no, deja de atacar.
 Para chequear las colisiones estudiar el metodo posicionValida. Alli
 se ven las colisiones con los obstaculos. En este caso sera con los zombies. */
 Juego.calcularAtaques = function() {
+  if (this.terminoJuego() || this.ganoJuego()) {
+    return;
+  }
+
   this.enemigos.forEach(function(enemigo) {
     if (this.intersecan(enemigo, this.jugador, this.jugador.x, this.jugador.y)) {
-      /* Si el enemigo colisiona debe empezar su ataque
-      COMPLETAR */
       enemigo.comenzarAtaque(this.jugador);
     } else {
-      /* Sino, debe dejar de atacar
-      COMPLETAR */
       enemigo.dejarDeAtacar();
     }
   }, this);
@@ -229,7 +223,6 @@ Juego.chequearColisiones = function(x, y) {
     if (this.intersecan(obstaculo, this.jugador, x, y)) {
 
       obstaculo.chocar(this.jugador);
-      console.log("CANTIDAD DE VIDAS" + this.jugador.vidas)
       puedeMoverse = false
     }
   }, this)
@@ -256,13 +249,13 @@ Juego.dibujarFondo = function() {
   // Si se termino el juego hay que mostrar el mensaje de game over de fondo
   if (this.terminoJuego()) {
     Dibujante.dibujarImagen('imagenes/mensaje_gameover.png', 0, 5, this.anchoCanvas, this.altoCanvas);
-    document.getElementById('reiniciar').style.visibility = 'visible';
+    document.getElementById('reiniciar').classList.add('visible');
   }
 
   // Si se gano el juego hay que mostrar el mensaje de ganoJuego de fondo
   else if (this.ganoJuego()) {
     Dibujante.dibujarImagen('imagenes/Splash.png', 190, 113, 500, 203);
-    document.getElementById('reiniciar').style.visibility = 'visible';
+    document.getElementById('reiniciar').classList.add('visible');
   } else {
     Dibujante.dibujarImagen('imagenes/mapa.png', 0, 5, this.anchoCanvas, this.altoCanvas);
   }
@@ -279,15 +272,22 @@ Juego.ganoJuego = function() {
 
 Juego.iniciarRecursos();
 
+document.getElementById('reiniciar').addEventListener('click', function() {
+  window.location.reload();
+});
+
 // Activa las lecturas del teclado al presionar teclas
 // Documentacion: https://developer.mozilla.org/es/docs/Web/API/EventTarget/addEventListener
 document.addEventListener('keydown', function(e) {
   var allowedKeys = {
-    37: 'izq',
-    38: 'arriba',
-    39: 'der',
-    40: 'abajo'
+    ArrowLeft: 'izq',
+    ArrowUp: 'arriba',
+    ArrowRight: 'der',
+    ArrowDown: 'abajo'
   };
 
-  Juego.capturarMovimiento(allowedKeys[e.keyCode]);
+  if (allowedKeys[e.key]) {
+    e.preventDefault();
+    Juego.capturarMovimiento(allowedKeys[e.key]);
+  }
 });

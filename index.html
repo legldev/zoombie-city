@@ -1,20 +1,37 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"/> -->
-<!-- Incluir los archivos donde este guardado el estilo en formato css -->
-<link rel="stylesheet" href="css/juego.css">
-<!-- Incluir los archivos donde este el codigo Javascript del juego -->
-<script src='js/resources.js'> </script>
-<script src='js/jugador.js'> </script>
-<script src='js/dibujante.js'> </script>
-<script src='js/obstaculo.js'> </script>
-<script src='js/enemigo.js'> </script>
-<script src='js/zombie_caminante.js'></script>
-<script src='js/zombie_conductor.js'></script>
-<script src='js/juego.js'> </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ciudad Zoombie</title>
+  <link rel="stylesheet" href="css/juego.css">
 </head>
+<body>
+  <main class="juego">
+    <header class="juego__encabezado">
+      <div>
+        <p class="juego__etiqueta">Supervivencia urbana</p>
+        <h1>Ciudad Zoombie</h1>
+      </div>
+      <button type="button" class="boton-recargar" id="reiniciar">Reiniciar</button>
+    </header>
 
-<input type="button" value="< Clic para volver a Jugar  >" onClick="window.location.reload()" class="boton-recargar" id="reiniciar">
+    <section class="juego__tablero" id="tablero" aria-label="Tablero de Ciudad Zoombie"></section>
+
+    <footer class="juego__controles">
+      <span>Usa las flechas para manejar.</span>
+      <span>Evita zombies, trenes y obstáculos.</span>
+      <span>Llega al sur de la ciudad para ganar.</span>
+    </footer>
+  </main>
+
+  <script src="js/resources.js"></script>
+  <script src="js/jugador.js"></script>
+  <script src="js/dibujante.js"></script>
+  <script src="js/obstaculo.js"></script>
+  <script src="js/enemigo.js"></script>
+  <script src="js/zombie_caminante.js"></script>
+  <script src="js/zombie_conductor.js"></script>
+  <script src="js/juego.js"></script>
 </body>
 </html>

@@ -1,7 +1,4 @@
-/* Aca podes encontrar al zombie caminante cuyo codigo esta completo. Podes
-modificarlo para hacer que se comporte de la forma que mas te guste.
-Este zombie recibe los mismos parametros que el objeto Enemigo. Podes consultar
-el archivo Enemigo.js para entender que es cada uno. */
+/* Zombie caminante: enemigo de movimiento erratico que hereda de Enemigo. */
 
 var ZombieCaminante = function(sprite, x, y, ancho, alto, velocidad, rangoMov) {
   /* ZombieCaminante llama al constructor de Enemigo utilizando los parametros
